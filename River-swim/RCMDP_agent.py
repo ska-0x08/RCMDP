@@ -36,13 +36,22 @@ class Agent():
         for i in range (tau):
 
              #? 修改点 ---------------------------------------------------
-            z = sign * V / C_KL
-            z = z - np.max(z)
-            exp_V = np.exp(z)
+            z = sign * V / C_KL                         # shape: S
+            z_sa = np.full_like(p_0, -np.inf, dtype=float)
+            z_sa = np.where(p_0 > 0, z[None, None, :], -np.inf)
+
+            z_sa = z_sa - np.max(z_sa, axis=2, keepdims=True)
+
+            weights = p_0 * np.exp(z_sa)
+            denom = weights.sum(axis=2, keepdims=True)
+            p_star = weights / np.maximum(denom, 1e-300)
+            #z = sign * V / C_KL
+            #z = z - np.max(z)
+            #exp_V = np.exp(z)
             #exp_V = np.exp(sign * (V - np.max(V)) / C_KL)   # shape: (S,)
             #? ---------------------------------------------------------
-            weights = p_0 * exp_V[None, None, :]
-            p_star = weights / weights.sum(axis=2, keepdims=True)
+            #weights = p_0 * exp_V[None, None, :]
+            #p_star = weights / weights.sum(axis=2, keepdims=True)
 
             expected_V = p_star @ V
             c_pi = c_i
@@ -79,17 +88,23 @@ class Agent():
         ##——————————————————————————————————————————————————————————————————————
         ## 为了数值稳定，减去 V.max() ？？？
         #? 修改点 ---------------------------------------------------
-        z = sign * V / C_KL
-        z = z - np.max(z)
-        exp_V = np.exp(z)
+        z = sign * V / C_KL                         # shape: S
+        z_sa = np.full_like(p_0, -np.inf, dtype=float)
+        z_sa = np.where(p_0 > 0, z[None, None, :], -np.inf)
+
+        z_sa = z_sa - np.max(z_sa, axis=2, keepdims=True)
+
+        weights = p_0 * np.exp(z_sa)
+        denom = weights.sum(axis=2, keepdims=True)
+        p_star = weights / np.maximum(denom, 1e-300)
         #exp_V = np.exp(sign * (V - np.max(V)) / C_KL)   # shape: (S,)
         #? ---------------------------------------------------------
         ## p_0 shape: (S, A, S)
         ##exp_V[None, None, :] shape: (1, 1, S)
-        weights = p_0 * exp_V[None, None, :]
+        #weights = p_0 * exp_V[None, None, :]
 
         ## 对 next_state 维度归一化
-        p_star = weights / weights.sum(axis=2, keepdims=True)
+        
         #weight = np.zeros ((S, A))
         #p_star = np.zeros((S, A, S))
         #for s in range (S):

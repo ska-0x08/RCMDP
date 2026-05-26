@@ -20,7 +20,7 @@ Constraintion_DIM = 2
 
 max_steps = 1000
 C_KL = 0.1
-alpha = 0.0001
+alpha = 0.001
 tau = 1000
 tol = 1e-8
 b = [0, 42]

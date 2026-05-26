@@ -136,7 +136,7 @@ class Agent():
         #? -----------------------
         
         
-        J = rho @ V
+        J = float(rho @ V)
         J -= b
         #J = 0
         #for s in range (S):

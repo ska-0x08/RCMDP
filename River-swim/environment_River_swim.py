@@ -31,34 +31,34 @@ class Env:
     def reset(self):
         return 0
     
-    
+
     def step (self, state, action):
         n = random.randint(1, 10)
         if state == 0 and action == 0:
             if n == 1:
-                return state + 1, self.dic[state + 1]["reward"], self.dic[state + 1]["cost"]
+                return state + 1, self.dic[state]["reward"], self.dic[state]["cost"]
             else :
                 return state, self.dic[state]["reward"], self.dic[state]["cost"]
             
         if state == 5 and action == 1:
             if n == 1:
-                return state - 1, self.dic[state - 1]["reward"], self.dic[state - 1]["cost"]
+                return state - 1, self.dic[state]["reward"], self.dic[state]["cost"]
             else :
                 return state, self.dic[state]["reward"], self.dic[state]["cost"]
 
         if state > 0 and action == 0:
             new_state = min (state + 1, 5)
             if n == 1:
-                return new_state, self.dic[new_state]["reward"], self.dic[new_state]["cost"]
+                return new_state, self.dic[state]["reward"], self.dic[state]["cost"]
             elif n <= 7:
                 return state, self.dic[state]["reward"], self.dic[state]["cost"]
             else :
-                return state - 1, self.dic[state - 1]["reward"], self.dic[state - 1]["cost"]
+                return state - 1, self.dic[state]["reward"], self.dic[state]["cost"]
         if state < 5 and action == 1:
             if n == 1:
                 new_state = max(0, state - 1)
-                return new_state, self.dic[new_state]["reward"], self.dic[new_state]["cost"]
+                return new_state, self.dic[state]["reward"], self.dic[state]["cost"]
             elif n <= 7:
                 return state, self.dic[state]["reward"], self.dic[state]["cost"]
             else :
-                return state + 1, self.dic[state + 1]["reward"], self.dic[state + 1]["cost"]
+                return state + 1, self.dic[state]["reward"], self.dic[state]["cost"]

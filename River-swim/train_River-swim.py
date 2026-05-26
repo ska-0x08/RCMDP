@@ -4,7 +4,6 @@ import os
 import matplotlib.pyplot as plt
 from RCMDP_agent import Agent
 from environment_River_swim import Env
-from torch.distributions import Categorical
 
 env = Env()
 
@@ -21,8 +20,8 @@ Constraintion_DIM = 2
 
 max_steps = 1000
 C_KL = 0.1
-alpha = 0.004
-tau = 10000
+alpha = 0.0001
+tau = 1000
 tol = 1e-8
 b = [0, 42]
 gamma = 0.99
@@ -74,9 +73,7 @@ for iterator in range (T):
     reward = 0
     cost = 0
     for i in range (max_steps):
-        prob = pi[s]
-        dist = Categorical(prob)
-        a = dist.sample()
+        a = np.random.choice(A, p=pi[s])
         s, r, cost_ = env.step(s, a)
         reward += (gamma ** i) * r
         cost += (gamma ** i) * cost_

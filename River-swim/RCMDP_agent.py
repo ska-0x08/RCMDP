@@ -16,7 +16,7 @@ class Agent():
         self.alpha = alpha
         self.lamb = lamb
 
-    def Robust_Q_table (self, c_i, pi):
+    def Robust_Q_table (self, c_i, pi, obj_type):
 
         p_0 = self.p_0
         S = self.S
@@ -29,9 +29,18 @@ class Agent():
 
         Q = np.zeros((S, A))
         V = np.zeros(S)
+        if obj_type == 0 :
+            sign = -1
+        else :
+            sign = 1
         for i in range (tau):
-            exp_V = np.exp((V - np.max(V)) / C_KL)
 
+             #? 修改点 ---------------------------------------------------
+            z = sign * V / C_KL
+            z = z - np.max(z)
+            exp_V = np.exp(z)
+            #exp_V = np.exp(sign * (V - np.max(V)) / C_KL)   # shape: (S,)
+            #? ---------------------------------------------------------
             weights = p_0 * exp_V[None, None, :]
             p_star = weights / weights.sum(axis=2, keepdims=True)
 
@@ -46,10 +55,15 @@ class Agent():
             V = V_new
         return Q, V
 
-    def KL_Uncertainty_Evaluator(self, c_i, pi, type, b):
-        
+    def KL_Uncertainty_Evaluator(self, c_i, pi, obj_type, b):
+        if obj_type == 0 :
+            sign = -1
+        else :
+            sign = 1    
+
+
         c_eval = c_i.copy()
-        if type == 0:
+        if obj_type == 0:
             c_eval = c_eval / self.lamb
 
 
@@ -61,11 +75,15 @@ class Agent():
 
 
 
-        Q, V = self.Robust_Q_table(c_eval, pi)
+        Q, V = self.Robust_Q_table(c_eval, pi, obj_type)
         ##——————————————————————————————————————————————————————————————————————
         ## 为了数值稳定，减去 V.max() ？？？
-        exp_V = np.exp((V - np.max(V)) / C_KL)   # shape: (S,)
-
+        #? 修改点 ---------------------------------------------------
+        z = sign * V / C_KL
+        z = z - np.max(z)
+        exp_V = np.exp(z)
+        #exp_V = np.exp(sign * (V - np.max(V)) / C_KL)   # shape: (S,)
+        #? ---------------------------------------------------------
         ## p_0 shape: (S, A, S)
         ##exp_V[None, None, :] shape: (1, 1, S)
         weights = p_0 * exp_V[None, None, :]
@@ -126,14 +144,14 @@ class Agent():
         return J, Q
 
 
-    def update (self, pi, Q, type):
+    def update (self, pi, Q, obj_type):
         alpha = self.alpha
         
         
         
         #? 修改点2------------------------------------------
         logits = -alpha * Q
-        if type == 0:
+        if obj_type == 0:
             logits *= -1
 
         logits = logits - logits.max(axis=1, keepdims=True)
